@@ -32,7 +32,8 @@ const recipesSchema = new Schema({
 	description: { type: String, required: true },
 	ingredients: { type: Array, required: true },
 	type: { type: String, required: true },
-	image: { data: Buffer, type: String, required: false },
+	image: { data: Buffer, contentType: String, required: false },
+	userId: { type: String, required: true },
 });
 
 const Whatever = mongoose.model('whatever', whateverSchema, 'whatever');

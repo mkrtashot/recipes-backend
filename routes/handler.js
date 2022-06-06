@@ -1,25 +1,30 @@
 const express = require('express');
-const cors = require('cors');
 const app = express();
 const multer = require('multer');
 const cors = require('cors');
 const router = express.Router();
 const Schemas = require('../models/Schemas');
 const { Test } = require('../models/Schemas');
+const fileUpload = require('express-fileupload');
+
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+
+router.use(fileUpload());
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, './');
+		cb(null, './uploads');
 	},
 	filename: function (req, file, cb) {
-		const ext = file.mimetype.split('/')[1];
-		cb(null, `uploads/${file.originalname}-${Date.now()}.${ext}`);
+		filename: (req, file, cb) => {
+			cb(null, file.originalname);
+		};
 	},
 });
 
 const upload = multer({
 	storage: storage,
-});
+}).single('testImage');
 
 router.get('/addWhatever', async (req, res) => {
 	const user = { username: 'lololo', fullname: 'LOLO hahahaha' };
@@ -168,40 +173,71 @@ router.post('/login', async (req, res) => {
 		});
 });
 
-router.post('/addRecipe', upload.single('image'), async (req, res) => {
-	const title = req.body.title;
-	const description = req.body.description;
-	const ingredients = req.body.ingredients;
-	const type = req.body.type;
-	const userId = req.body.userId;
-	const image = req.file.filename;
+//////////
 
-	res.set({
-		'Content-Type': 'application/json',
-		'Access-Control-Allow-Origin': '*',
+// router.post('/addRecipe', upload.single('featuredImage'), async (req, res) => {
+// 	const title = req.body.title;
+// 	const description = req.body.description;
+// 	const ingredients = req.body.ingredients;
+// 	const type = req.body.type;
+// 	const userId = req.body.userId;
+// 	console.dir(req.body.file);
+// 	const image = req.body.file;
+
+// 	const newRecipe = new Schemas.Recipes({
+// 		title: title,
+// 		description: description,
+// 		ingredients: ingredients,
+// 		type: type,
+// 		image: image,
+// 		userId: userId,
+// 	});
+
+// 	try {
+// 		await newRecipe.save((err, newRecipeResults) => {
+// 			if (err) res.end('Error Saving.');
+// 			console.log('works');
+// 			res.end();
+// 		});
+// 	} catch (err) {
+// 		console.log('Log ::: err :::', err);
+// 		res.end();
+// 	}
+// });
+
+////// Im U Gevi gluxgorcoci start
+
+router.post('/addRecipe', (req, res) => {
+	upload(req, res, (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			const title = req.body.title;
+			const description = req.body.description;
+			const ingredients = req.body.ingredients;
+			const type = req.body.type;
+			const userId = req.body.userId;
+			console.log(req.body, filename, 'files');
+			console.log(req.file, 'file');
+			const image = {
+				data: req.file.filename,
+				contentType: 'image/jpg',
+			};
+
+			const newRecipe = new Schemas.Recipes({
+				title: title,
+				description: description,
+				ingredients: ingredients,
+				type: type,
+				image: image,
+				userId: userId,
+			});
+			newRecipe
+				.save()
+				.then(() => res.send('succesfully'))
+				.catch((err) => console.log(err));
+		}
 	});
-
-	const newRecipe = new Schemas.Recipes({
-		title: title,
-		description: description,
-		ingredients: ingredients,
-		type: type,
-		image: image,
-		userId: userId,
-	});
-
-	try {
-		await newRecipe.save((err, newRecipeResults) => {
-			if (err) res.end('Error Saving.');
-			console.log('works');
-			res.redirect('http://localhost:3000/works');
-			res.end();
-		});
-	} catch (err) {
-		console.log('Log ::: err :::', err);
-		res.redirect('/error');
-		res.end();
-	}
 });
 
 router.post('/addTest', async (req, res) => {
