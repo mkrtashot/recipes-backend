@@ -217,25 +217,24 @@ router.post('/addRecipe', (req, res) => {
 			const ingredients = req.body.ingredients;
 			const type = req.body.type;
 			const userId = req.body.userId;
-			console.log(req.body, filename, 'files');
-			console.log(req.file, 'file');
-			const image = {
-				data: req.file.filename,
-				contentType: 'image/jpg',
-			};
+			console.log(req.files?.data?.toString(), 'file', req.body);
+			// const image = {
+			// 	data: req.file.filename,
+			// 	contentType: 'image/jpg',
+			// };
 
-			const newRecipe = new Schemas.Recipes({
-				title: title,
-				description: description,
-				ingredients: ingredients,
-				type: type,
-				image: image,
-				userId: userId,
-			});
-			newRecipe
-				.save()
-				.then(() => res.send('succesfully'))
-				.catch((err) => console.log(err));
+			// const newRecipe = new Schemas.Recipes({
+			// 	title: title,
+			// 	description: description,
+			// 	ingredients: ingredients,
+			// 	type: type,
+			// 	// image: image,
+			// 	userId: userId,
+			// });
+			// newRecipe
+			// 	.save()
+			// 	.then(() => res.send('succesfully'))
+			// 	.catch((err) => console.log(err));
 		}
 	});
 });
